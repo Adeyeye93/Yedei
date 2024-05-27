@@ -18,7 +18,7 @@ defmodule Collector.MixProject do
   # Run "mix help compile.app" to learn about applications.
   def application do
     [
-      extra_applications: [:logger]
+      extra_applications: [:logger, :erlport]
     ]
   end
 
@@ -28,7 +28,13 @@ defmodule Collector.MixProject do
       # {:dep_from_hexpm, "~> 0.3.0"},
       # {:dep_from_git, git: "https://github.com/elixir-lang/my_dep.git", tag: "0.1.0"},
       # {:sibling_app_in_umbrella, in_umbrella: true}
-      {:mime, "~> 2.0"}
+      {:mime, "~> 2.0"},
+      {:file_system, "~> 1.0", only: :test},
+      {:html_sanitize_ex, "~> 1.4"},
+      {:expletive, "~> 0.1.5"},
+      {:briefly, "~> 0.5.1"},
+      {:uuid, "~> 1.1"},
+      {:erlport, "~> 0.11.0"}
     ]
   end
 end

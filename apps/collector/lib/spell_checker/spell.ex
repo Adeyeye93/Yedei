@@ -1,29 +1,40 @@
 defmodule SpellChecker.Spell do
   @moduledoc """
-  Documentation for ElixirPythonQrcode.
+  Documentation for Spell.
   """
   require Logger
-  alias SpellChecker.SpellPythonHelper
+  use GenServer
 
-  defp default_instance() do
-    # Load all modules in our priv/python directory
-    path =
-      [:code.priv_dir(:collector), "python"]
-      |> Path.join()
-
-    # |> Logger.info()
-
-    SpellPythonHelper.python_instance(to_charlist(path))
+  def start_link(_) do
+    GenServer.start_link(__MODULE__, :ok, name: __MODULE__)
   end
 
-  # wrapper function to call python functions using
-  # default python instance
-  defp call_python(module, function, args \\ []) do
-    default_instance()
-    |> SpellPythonHelper.call_python(module, function, args)
+  def init(:ok) do
+    python_path = Path.join(:code.priv_dir(:collector), "python")
+    {:ok, python} = :python.start_link([{:python_path, to_charlist(python_path)}])
+    {:ok, python}
   end
 
-  def greetings() do
-    call_python(:spell, :greetings, [])
+  def spell_error(chunk) do
+    GenServer.call(__MODULE__, {:spell_error, chunk})
+  end
+
+  def handle_call({:spell_error, chunk}, _from, python) do
+    args = [chunk]
+    result = :python.call(python, :spell, :spell_error, args)
+    {:reply, result, python}
+  end
+
+  def process_file_for_txt(file_path) do
+    File.stream!(file_path, [], :line)
+    |> Stream.map(&Task.async(fn -> process_chunk(&1) end))
+    |> Enum.map(&Task.await(&1))
+    |> List.flatten()
+    |> Enum.uniq()
+    |> Logger.info()
+  end
+
+  defp process_chunk(chunk) do
+    spell_error(chunk)
   end
 end

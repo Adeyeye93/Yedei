@@ -1,13 +1,7 @@
-# from spell_checker import SpellChecker
+from spellchecker import SpellChecker
 
+spell = SpellChecker(distance=1)
+def spell_error(chunk):
+    words = spell.unknown(chunk)
+    return words
 
-# spell = SpellChecker()
-
-# def check_error(words_in_list):
-
-#     words = spell.unknown(words_in_list)
-#     return words
-
-
-def greetings():
-    return "Hello seyi"

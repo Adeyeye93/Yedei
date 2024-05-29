@@ -15,8 +15,8 @@ defmodule Collector do
 
   # defp data_collector(data, type), do: IO.puts("Data: #{data} type: #{type}")
 
-  def type_determiner(attr, file_path) do
-    MIME.from_path(attr)
+  def type_determiner(file_path) do
+    MIME.from_path(file_path)
     |> MIME.extensions()
     |> Enum.fetch!(0)
     |> type_filter(file_path)

@@ -29,6 +29,8 @@ defmodule Reader do
 
           Logger.info("a temporary file as been created at #{path}")
           File.write!("#{path}/temp_file/#{id}_temp.txt", content)
+
+          "#{path}/temp_file/#{id}_temp.txt"
         rescue
           e in File.Error ->
             Logger.error("could not create file: #{e.reason}")

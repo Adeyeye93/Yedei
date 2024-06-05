@@ -16,6 +16,7 @@ defmodule SpellChecker.Spell do
   end
 
   def spell_error(chunk) do
+    start_link(:ok)
     GenServer.call(__MODULE__, {:spell_error, chunk})
   end
 
@@ -26,15 +27,33 @@ defmodule SpellChecker.Spell do
   end
 
   def process_file_for_txt(file_path) do
-    File.stream!(file_path, [], :line)
-    |> Stream.map(&Task.async(fn -> process_chunk(&1) end))
-    |> Enum.map(&Task.await(&1))
-    |> List.flatten()
-    |> Enum.uniq()
-    |> Logger.info()
+    %{total_words: total_words, total_errors: total_errors} =
+      File.stream!(file_path, [], :line)
+      |> Enum.reduce(%{total_words: 0, total_errors: 0}, fn line, acc ->
+        words =
+          String.split(line, " ", trim: true)
+          |> Enum.uniq()
+
+        task = Task.async(fn -> process_chunk(words) end)
+        error_words = Task.await(task)
+
+        %{
+          total_words: acc.total_words + length(words),
+          total_errors: acc.total_errors + length(error_words)
+        }
+      end)
+
+    Reader.clean_up(file_path)
+    calculate_error_percentage(total_words, total_errors)
   end
 
   defp process_chunk(chunk) do
     spell_error(chunk)
   end
+
+  defp calculate_error_percentage(total_words, total_errors) when total_words > 0 do
+    IO.puts("Calc: #{total_errors} / #{total_words}")
+  end
+
+  defp calculate_error_percentage(_, _), do: 0
 end

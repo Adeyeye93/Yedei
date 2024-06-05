@@ -13,7 +13,6 @@ defmodule Collector do
   @script_file ~w(.r .m .ps1 .lua)
   # @others ~w(.sql)
 
-  # defp data_collector(data, type), do: IO.puts("Data: #{data} type: #{type}")
 
   def type_determiner(file_path) do
     MIME.from_path(file_path)
